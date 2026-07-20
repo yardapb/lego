@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LEGO">
+<meta name="theme-color" content="#ffe81f">
+<title>LEGO – Databáze sbírky</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050a0f; --surface:#0a1520; --surface2:#0f1f30; --border:#1a3a5c;
+  --accent:#ffe81f; --accent2:#4fc3f7; --red:#ff3d3d; --green:#4caf50;
+  --text:#d0e8ff; --text-dim:#5a8ab0;
+  --invest:#4caf50; --noinvest:#5a8ab0;
+  --glow:0 0 20px rgba(255,232,31,0.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 50%,rgba(0,40,80,0.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,20,60,0.3) 0%,transparent 50%);}
+header{background:linear-gradient(180deg,#000 0%,var(--surface) 100%);border-bottom:2px solid var(--accent);
+  padding:18px 24px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 4px 40px rgba(255,232,31,0.15);flex-wrap:wrap;gap:10px;}
+.logo{display:flex;align-items:center;gap:14px;}
+.logo-icon{width:44px;height:44px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--glow);}
+.logo-text h1{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--accent);letter-spacing:2px;text-shadow:0 0 20px rgba(255,232,31,0.5);}
+.logo-text p{font-size:10px;color:var(--text-dim);letter-spacing:3px;text-transform:uppercase;}
+.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.lock-btn{padding:8px 14px;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;border-radius:6px;
+  cursor:pointer;transition:all 0.2s;border:2px solid;letter-spacing:1px;}
+.lock-btn.locked{background:transparent;color:var(--text-dim);border-color:var(--border);}
+.lock-btn.locked:hover{border-color:var(--accent);color:var(--accent);}
+.lock-btn.unlocked{background:rgba(255,232,31,0.15);color:var(--accent);border-color:var(--accent);
+  box-shadow:0 0 12px rgba(255,232,31,0.2);}
+.view-toggle{display:flex;gap:3px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px;}
+.view-btn{padding:6px 12px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;border-radius:4px;font-size:15px;transition:all 0.2s;}
+.view-btn.active{background:var(--accent);color:#000;}
+.stats-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;}
+.stat-item{padding:12px 18px;display:flex;flex-direction:column;align-items:center;min-width:110px;border-right:1px solid var(--border);transition:background 0.2s;}
+.stat-item:hover{background:var(--surface2);}
+.stat-value{font-family:'Orbitron',monospace;font-size:18px;font-weight:800;color:var(--accent);white-space:nowrap;}
+.stat-value.pos{color:var(--green);} .stat-value.neg{color:var(--red);}
+.stat-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-top:2px;white-space:nowrap;}
+.controls{display:flex;gap:10px;padding:16px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;}
+.search-wrap{flex:1;min-width:180px;position:relative;}
+.search-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
+  padding:9px 14px 9px 38px;font-family:'Rajdhani',sans-serif;font-size:14px;border-radius:4px;outline:none;transition:border-color 0.2s;}
+.search-wrap input:focus{border-color:var(--accent);}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:15px;}
+select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;
+  font-family:'Rajdhani',sans-serif;font-size:13px;border-radius:4px;outline:none;cursor:pointer;}
+.btn{padding:9px 18px;font-family:'Orbitron',monospace;font-size:10px;font-weight:600;letter-spacing:1px;
+  border-radius:4px;cursor:pointer;transition:all 0.2s;border:none;text-transform:uppercase;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#000;box-shadow:0 0 14px rgba(255,232,31,0.3);}
+.btn-primary:hover{background:#fff;transform:translateY(-1px);}
+.btn-outline{background:transparent;color:var(--accent2);border:1px solid var(--accent2);}
+.btn-outline:hover{background:rgba(79,195,247,0.1);transform:translateY(-1px);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.results-info{padding:9px 24px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);
+  border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+.results-info span{color:var(--accent);}
+.table-wrap{padding:0 24px 40px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{position:sticky;top:0;z-index:10;}
+th{background:var(--surface2);color:var(--text-dim);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;padding:12px 14px;text-align:left;border-bottom:2px solid var(--border);
+  cursor:pointer;white-space:nowrap;user-select:none;transition:color 0.2s;}
+th:hover{color:var(--accent);} th.sorted{color:var(--accent);}
+tr{border-bottom:1px solid rgba(26,58,92,0.5);transition:background 0.15s;animation:fadeIn 0.3s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+tbody tr:hover{background:var(--surface2);}
+td{padding:9px 14px;vertical-align:middle;color:var(--text);}
+.td-thumb{width:66px;text-align:center;padding:6px 10px;cursor:pointer;}
+.td-thumb img{width:52px;height:40px;object-fit:contain;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid var(--border);transition:transform 0.2s;}
+tbody tr:hover .td-thumb img{transform:scale(1.15);}
+.td-kod{font-family:'Orbitron',monospace;font-size:11px;color:var(--accent2);white-space:nowrap;cursor:pointer;}
+.td-nazev{font-weight:500;max-width:220px;cursor:pointer;}
+.td-datum,.td-od{font-size:11px;color:var(--text-dim);white-space:nowrap;}
+.td-od{max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+.td-poznamka{font-size:11px;color:var(--text-dim);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.td-cena{font-family:'Orbitron',monospace;font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap;text-align:right;}
+.td-hodnota{font-family:'Orbitron',monospace;font-size:12px;font-weight:600;white-space:nowrap;text-align:right;}
+.td-hodnota .updated{display:block;font-family:'Rajdhani',sans-serif;font-size:9px;color:var(--text-dim);font-weight:400;text-align:right;}
+.td-growth{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;white-space:nowrap;text-align:right;}
+.td-growth.pos{color:var(--green);} .td-growth.neg{color:var(--red);} .td-growth.neu{color:var(--text-dim);}
+.td-refresh{width:38px;text-align:center;}
+.refresh-btn{background:none;border:none;color:var(--accent2);cursor:pointer;font-size:14px;transition:transform 0.3s;padding:4px;}
+.refresh-btn:hover{color:var(--accent);transform:rotate(90deg);}
+.refresh-btn.spinning{animation:spin 0.8s linear infinite;}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.badge{display:inline-block;padding:3px 9px;border-radius:3px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+.badge-invest{background:rgba(76,175,80,0.15);color:var(--invest);border:1px solid rgba(76,175,80,0.35);}
+.badge-noinvest{background:rgba(90,138,176,0.12);color:var(--noinvest);border:1px solid rgba(90,138,176,0.3);}
+.grid-wrap{padding:20px 24px 40px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;}
+.card{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent2);
+  border-radius:8px;padding:0;cursor:pointer;transition:all 0.2s;animation:fadeIn 0.3s ease both;overflow:hidden;}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.5);border-color:var(--accent);border-top-color:var(--accent);}
+.card-img{width:100%;height:120px;object-fit:contain;background:rgba(255,255,255,0.03);padding:10px;}
+.card-body{padding:10px 12px 12px;}
+.card-num{font-family:'Orbitron',monospace;font-size:11px;color:var(--accent2);font-weight:700;margin-bottom:4px;}
+.card-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;min-height:32px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-top:4px;}
+.card-cena{font-family:'Orbitron',monospace;color:var(--accent);font-weight:700;}
+.card-growth{font-family:'Orbitron',monospace;font-weight:700;}
+.card-growth.pos{color:var(--green);} .card-growth.neg{color:var(--red);} .card-growth.neu{color:var(--text-dim);}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;backdrop-filter:blur(6px);}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:10px;
+  width:640px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.9);animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-hero{display:flex;align-items:center;gap:20px;padding:20px 24px;border-bottom:1px solid var(--border);background:var(--surface2);}
+.modal-hero-img{width:130px;height:96px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);flex-shrink:0;}
+.modal-hero-info{flex:1;min-width:0;}
+.modal-hero-info h2{font-size:16px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.3;}
+.modal-hero-info .sub{font-family:'Orbitron',monospace;font-size:10px;color:var(--accent2);margin-bottom:5px;}
+.img-link{font-size:10px;color:var(--text-dim);word-break:break-all;text-decoration:none;border-bottom:1px dashed var(--border);transition:color 0.2s;}
+.img-link:hover{color:var(--accent2);}
+.modal-body{padding:20px 24px;}
+.modal-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.modal-label{font-family:'Orbitron',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+.modal-close{background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;transition:color 0.2s;}
+.modal-close:hover{color:var(--accent);}
+.field-group{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.field-full{grid-column:1/-1;}
+.field label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
+  padding:9px 12px;font-family:'Rajdhani',sans-serif;font-size:13px;border-radius:4px;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field input[readonly],.field input:disabled,.field select:disabled,.field textarea:disabled{
+  color:var(--text-dim);cursor:not-allowed;border-color:rgba(26,58,92,0.4);background:rgba(0,0,0,0.15);}
+.field-note{font-size:10px;color:var(--accent2);margin-top:4px;}
+.value-box{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:12px;}
+.value-box .vb-main{flex:1;}
+.value-box .vb-num{font-family:'Orbitron',monospace;font-size:18px;font-weight:800;}
+.value-box .vb-num.pos{color:var(--green);} .value-box .vb-num.neg{color:var(--red);} .value-box .vb-num.neu{color:var(--text-dim);}
+.value-box .vb-sub{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:18px;border-top:1px solid var(--border);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);padding:9px 18px;font-family:'Orbitron',monospace;
+  font-size:10px;font-weight:600;letter-spacing:1px;border-radius:4px;cursor:pointer;margin-right:auto;transition:all 0.2s;text-transform:uppercase;}
+.btn-danger:hover{background:rgba(255,61,61,0.1);}
+.btn-danger:disabled{opacity:0.3;cursor:not-allowed;}
+.readonly-notice{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(26,58,92,0.3);
+  border:1px solid var(--border);border-radius:6px;margin-bottom:16px;font-size:12px;color:var(--text-dim);}
+.readonly-notice span{font-size:16px;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);}
+.empty-state .icon{font-size:44px;margin-bottom:14px;}
+.empty-state p{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;}
+/* PIN MODAL */
+.pin-modal{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent);
+  border-radius:12px;width:320px;max-width:95vw;padding:32px 28px;text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,0.9);animation:slideUp 0.2s ease;}
+.pin-title{font-family:'Orbitron',monospace;font-size:13px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;}
+.pin-subtitle{font-size:12px;color:var(--text-dim);margin-bottom:24px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s;}
+.pin-dot.filled{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px rgba(255,232,31,0.5);}
+.pin-dot.error{background:var(--red);border-color:var(--red);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.pin-key{padding:16px;font-family:'Orbitron',monospace;font-size:18px;font-weight:700;
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);cursor:pointer;transition:all 0.15s;}
+.pin-key:hover{background:var(--border);border-color:var(--accent);color:var(--accent);transform:scale(1.05);}
+.pin-key:active{transform:scale(0.95);}
+.pin-key.del{color:var(--red);border-color:var(--red);font-size:14px;}
+.pin-key.empty{background:transparent;border-color:transparent;cursor:default;}
+.pin-error{font-size:12px;color:var(--red);min-height:18px;margin-top:4px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧱</div>
+    <div class="logo-text"><h1>LEGO</h1><p>Databáze sbírky</p></div>
+  </div>
+  <div class="header-right">
+    <button class="lock-btn locked" id="lockBtn" onclick="handleLockBtn()">🔒 Zamčeno</button>
+    <button class="btn btn-outline" onclick="refreshAllValues()" id="btnRefreshAll" title="Aktualizovat aktuální hodnoty z BrickEconomy">🔄 Hodnoty</button>
+    <button class="btn btn-outline" onclick="exportData()" title="Exportovat zálohu">📤</button>
+    <button class="btn btn-outline" onclick="githubSync()" id="btnSync" title="Sync GitHub">☁️</button>
+    <button class="btn btn-outline" onclick="openGithubSettings()" title="Nastavení">⚙️</button>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Celkem setů</div></div>
+  <div class="stat-item"><div class="stat-value" id="stat-invest">0</div><div class="stat-label">Investiční</div></div>
+  <div class="stat-item"><div class="stat-value" id="stat-cena">0</div><div class="stat-label">Cena celkem</div></div>
+  <div class="stat-item"><div class="stat-value" id="stat-hodnota">0</div><div class="stat-label">Hodnota celkem</div></div>
+  <div class="stat-item"><div class="stat-value" id="stat-zisk">0</div><div class="stat-label">Zisk / Ztráta</div></div>
+  <div class="stat-item"><div class="stat-value" id="stat-zisk-pct">0</div><div class="stat-label">Zisk / Ztráta %</div></div>
+</div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Hledat číslo, název, od, poznámka..." oninput="filterItems()">
+  </div>
+  <select id="investFilter" onchange="filterItems()">
+    <option value="">Vše (investiční)</option><option value="ano">Investiční</option><option value="ne">Neinvestiční</option>
+  </select>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btnTable" onclick="setView('table')">☰</button>
+    <button class="view-btn" id="btnGrid" onclick="setView('grid')">⊞</button>
+  </div>
+  <button class="btn btn-primary" id="btnAdd" onclick="requirePin(()=>openItemModal(null))">+ Přidat set</button>
+</div>
+
+<div class="results-info">
+  <div>Zobrazeno: <span id="results-count">0</span> setů</div>
+  <div id="lastRefreshInfo" style="color:var(--text-dim);"></div>
+</div>
+
+<div id="viewTable" class="table-wrap">
+  <table>
+    <thead><tr>
+      <th style="width:66px;cursor:default;">Obr.</th>
+      <th onclick="sortItems('cislo')">Číslo <span id="s-cislo">↕</span></th>
+      <th onclick="sortItems('nazev')">Název <span id="s-nazev">↕</span></th>
+      <th onclick="sortItems('datum')">Datum <span id="s-datum">↕</span></th>
+      <th onclick="sortItems('od')">Od <span id="s-od">↕</span></th>
+      <th onclick="sortItems('poznamka')">Poznámka <span id="s-poznamka">↕</span></th>
+      <th onclick="sortItems('cena')" style="text-align:right">Cena <span id="s-cena">↕</span></th>
+      <th onclick="sortItems('investicni')">Invest. <span id="s-investicni">↕</span></th>
+      <th onclick="sortItems('hodnota')" style="text-align:right">Akt. hodnota <span id="s-hodnota">↕</span></th>
+      <th onclick="sortItems('growth')" style="text-align:right">Růst <span id="s-growth">↕</span></th>
+      <th style="width:38px;cursor:default;"></th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+<div id="viewGrid" class="grid-wrap" style="display:none;">
+  <div class="grid" id="gridBody"></div>
+</div>
+
+<!-- MODAL ITEM -->
+<div class="modal-overlay" id="itemModal" onclick="if(event.target===this)closeItemModal()">
+  <div class="modal">
+    <div class="modal-hero" id="itemModalHero"></div>
+    <div class="modal-body">
+      <div class="modal-title-row">
+        <span class="modal-label" id="itemModalTitle">Set</span>
+        <button class="modal-close" onclick="closeItemModal()">✕</button>
+      </div>
+      <div class="readonly-notice" id="itemReadonlyNotice">
+        <span>🔒</span><span>Režim prohlížení — pro editaci odemkni PIN tlačítkem v hlavičce</span>
+      </div>
+      <div class="value-box">
+        <div class="vb-main">
+          <div class="vb-num neu" id="vb-num">–</div>
+          <div class="vb-sub" id="vb-sub">Aktuální hodnota nebyla ještě načtena</div>
+        </div>
+        <button class="btn btn-outline" id="vb-refresh" onclick="refreshItemValue()">🔄 Aktualizovat</button>
+      </div>
+      <div class="field-group">
+        <div class="field"><label>Číslo setu</label><input type="text" id="if-cislo" disabled oninput="updateItemPreview()" placeholder="např. 75192"></div>
+        <div class="field"><label>Cena (Kč)</label><input type="number" id="if-cena" disabled></div>
+        <div class="field field-full"><label>Název setu</label><input type="text" id="if-nazev" disabled></div>
+        <div class="field"><label>Datum nákupu</label><input type="date" id="if-datum" disabled></div>
+        <div class="field"><label>Investiční</label>
+          <select id="if-investicni" disabled><option value="ne">Ne</option><option value="ano">Ano</option></select></div>
+        <div class="field field-full"><label>Od</label><input type="text" id="if-od" disabled></div>
+        <div class="field field-full"><label>Poznámka</label><textarea id="if-poznamka" disabled rows="2"></textarea></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-danger" id="itemBtnDelete" onclick="requirePin(()=>deleteItem())" style="display:none" disabled>🗑 Smazat</button>
+        <button class="btn btn-outline" onclick="closeItemModal()">Zavřít</button>
+        <button class="btn btn-primary" id="itemBtnSave" onclick="saveItem()" style="display:none" disabled>Uložit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="pinModal" onclick="if(event.target===this)closePinModal()">
+  <div class="pin-modal">
+    <div class="pin-title" id="pinTitle">🔐 ZADEJ PIN</div>
+    <div class="pin-subtitle" id="pinSubtitle">Odemkni editaci databáze</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+</div>
+
+<!-- GITHUB SETTINGS MODAL -->
+<div class="modal-overlay" id="githubModal" onclick="if(event.target===this)closeGithubSettings()">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-hero" style="background:var(--surface2);padding:20px 24px;border-bottom:1px solid var(--border);">
+      <div style="font-size:40px;flex-shrink:0;">⚙️</div>
+      <div class="modal-hero-info">
+        <h2 style="font-family:Orbitron,monospace;font-size:14px;color:var(--accent);">Nastavení</h2>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">GitHub sync + PIN ochrana</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-title-row">
+        <span class="modal-label">GitHub</span>
+        <button class="modal-close" onclick="closeGithubSettings()">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;line-height:1.6;padding:10px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent2);">
+        GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate → zaškrtni <strong style="color:var(--text)">repo</strong>. Repozitář si napřed na GitHubu založ (musí existovat).
+      </div>
+      <div class="field-group" style="grid-template-columns:1fr;">
+        <div class="field"><label>GitHub Token (PAT)</label><input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx"></div>
+        <div class="field"><label>GitHub uživatel</label><input type="text" id="gh-owner" placeholder="tvůj-username"></div>
+        <div class="field"><label>Název repozitáře</label><input type="text" id="gh-repo" placeholder="lego"></div>
+      </div>
+      <div class="modal-title-row" style="margin-top:20px;">
+        <span class="modal-label">PIN ochrana</span>
+      </div>
+      <div class="field-group" style="grid-template-columns:1fr 1fr;">
+        <div class="field"><label>Nový PIN (4 cifry)</label><input type="password" id="gh-pin-new" maxlength="4" placeholder="••••" inputmode="numeric"></div>
+        <div class="field"><label>Potvrdit PIN</label><input type="password" id="gh-pin-confirm" maxlength="4" placeholder="••••" inputmode="numeric"></div>
+      </div>
+      <div id="gh-status" style="margin-top:12px;font-size:12px;min-height:20px;"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeGithubSettings()">Zavřít</button>
+        <button class="btn btn-primary" onclick="saveGithubSettings()">Uložit nastavení</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="syncToast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 20px;
+  font-family:Orbitron,monospace;font-size:11px;letter-spacing:1px;z-index:3000;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);transition:opacity 0.3s;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;"></div>
+
+<script>
+const DATA_KEY = 'lego_gen_items_v1';
+const SOURCE = [];
+const IMG_SET = num => `https://img.bricklink.com/ItemImage/ON/0/${encodeURIComponent(num)}-1.png`;
+const BE_URL = num => `https://www.brickeconomy.com/set/${encodeURIComponent(num)}-1/`;
+const GH_TOKEN_KEY = 'lego_gen_gh_token';
+const GH_OWNER_KEY = 'lego_gen_gh_owner';
+const GH_REPO_KEY  = 'lego_gen_gh_repo';
+const GH_PIN_KEY   = 'lego_gen_pin';
+const RATE_KEY     = 'lego_gen_usd_czk_rate';
+const DATA_FILE    = 'data.json';
+const DEFAULT_PIN  = '1234';
+
+const CORS_PROXIES = [
+  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+  url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+  url => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
+];
+
+let items = [], filteredItems = [];
+let sortCol = 'datum', sortDir = -1;
+let editIdx = null;
+let view = 'table';
+let unlocked = false;
+let pinBuffer = '';
+let pinCallback = null;
+let usdCzkRate = null;
+
+function loadStorage(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; }
+}
+function saveStorage(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+function fmtKc(n){
+  if(n===null||n===undefined||isNaN(n)) return '–';
+  return Math.round(n).toLocaleString('cs-CZ') + ' Kč';
+}
+function fmtPct(n){
+  if(n===null||n===undefined||isNaN(n)) return '–';
+  const s = n>0?'+':'';
+  return s + n.toFixed(1) + ' %';
+}
+function fmtDate(d){
+  if(!d) return '–';
+  const parts = d.split('-');
+  if(parts.length!==3) return d;
+  return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+function growthOf(it){
+  if(it.hodnota===null||it.hodnota===undefined||!it.cena) return null;
+  return ((it.hodnota - it.cena) / it.cena) * 100;
+}
+
+function init(){
+  items = loadStorage(DATA_KEY, SOURCE.slice());
+  const s = getGhSettings();
+  document.getElementById('gh-token').value = '';
+  document.getElementById('gh-owner').value = s.owner||'';
+  document.getElementById('gh-repo').value = s.repo||'';
+  updateLockUI();
+  filterItems();
+}
+
+/* ---------- FILTER / SORT / RENDER ---------- */
+function filterItems(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const inv = document.getElementById('investFilter').value;
+  filteredItems = items.filter(it=>{
+    if(inv==='ano' && !it.investicni) return false;
+    if(inv==='ne' && it.investicni) return false;
+    if(q){
+      const hay = [it.cislo,it.nazev,it.od,it.poznamka].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  sortFiltered();
+  renderAll();
+}
+function sortItems(col){
+  if(sortCol===col){ sortDir *= -1; } else { sortCol = col; sortDir = 1; }
+  sortFiltered();
+  renderAll();
+}
+function sortFiltered(){
+  filteredItems.sort((a,b)=>{
+    let va, vb;
+    if(sortCol==='growth'){ va = growthOf(a); vb = growthOf(b); }
+    else if(sortCol==='hodnota'){ va = a.hodnota; vb = b.hodnota; }
+    else { va = a[sortCol]; vb = b[sortCol]; }
+    if(va===null||va===undefined) va = sortCol==='cena'||sortCol==='hodnota'||sortCol==='growth' ? -Infinity : '';
+    if(vb===null||vb===undefined) vb = sortCol==='cena'||sortCol==='hodnota'||sortCol==='growth' ? -Infinity : '';
+    if(typeof va==='string') va = va.toLowerCase();
+    if(typeof vb==='string') vb = vb.toLowerCase();
+    if(va<vb) return -1*sortDir;
+    if(va>vb) return 1*sortDir;
+    return 0;
+  });
+  ['cislo','nazev','datum','od','poznamka','cena','investicni','hodnota','growth'].forEach(c=>{
+    const el = document.getElementById('s-'+c);
+    if(el) el.textContent = (c===sortCol) ? (sortDir===1?'▲':'▼') : '↕';
+  });
+}
+function renderAll(){
+  document.getElementById('results-count').textContent = filteredItems.length;
+  renderTable();
+  renderGrid();
+  renderStats();
+}
+function growthClass(g){
+  if(g===null||g===undefined) return 'neu';
+  return g>0 ? 'pos' : (g<0 ? 'neg' : 'neu');
+}
+function renderTable(){
+  const tb = document.getElementById('tableBody');
+  if(filteredItems.length===0){
+    tb.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="icon">🧱</div><p>ŽÁDNÉ SETY NENALEZENY</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = filteredItems.map(it=>{
+    const idx = items.indexOf(it);
+    const g = growthOf(it);
+    const gc = growthClass(g);
+    return `<tr>
+      <td class="td-thumb" onclick="requirePin(()=>openItemModal(${idx}))"><img src="${IMG_SET(it.cislo)}" loading="lazy" onerror="this.style.opacity=0.15"></td>
+      <td class="td-kod" onclick="requirePin(()=>openItemModal(${idx}))">${esc(it.cislo)}</td>
+      <td class="td-nazev" onclick="requirePin(()=>openItemModal(${idx}))">${esc(it.nazev)}</td>
+      <td class="td-datum">${fmtDate(it.datum)}</td>
+      <td class="td-od" title="${esc(it.od)}">${esc(it.od)}</td>
+      <td class="td-poznamka" title="${esc(it.poznamka)}">${esc(it.poznamka)}</td>
+      <td class="td-cena">${fmtKc(it.cena)}</td>
+      <td>${it.investicni?'<span class="badge badge-invest">💰 Ano</span>':'<span class="badge badge-noinvest">Ne</span>'}</td>
+      <td class="td-hodnota">${fmtKc(it.hodnota)}${it.hodnotaUpdated?`<span class="updated">${fmtDate(it.hodnotaUpdated.slice(0,10))}</span>`:''}</td>
+      <td class="td-growth ${gc}">${g===null?'–':fmtPct(g)}</td>
+      <td class="td-refresh"><button class="refresh-btn" id="rbtn-${idx}" onclick="event.stopPropagation();refreshSingleValue(${idx})" title="Aktualizovat hodnotu">🔄</button></td>
+    </tr>`;
+  }).join('');
+}
+function renderGrid(){
+  const gb = document.getElementById('gridBody');
+  if(filteredItems.length===0){
+    gb.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🧱</div><p>ŽÁDNÉ SETY NENALEZENY</p></div>`;
+    return;
+  }
+  gb.innerHTML = filteredItems.map(it=>{
+    const idx = items.indexOf(it);
+    const g = growthOf(it);
+    const gc = growthClass(g);
+    return `<div class="card" onclick="requirePin(()=>openItemModal(${idx}))">
+      <img class="card-img" src="${IMG_SET(it.cislo)}" loading="lazy" onerror="this.style.opacity=0.15">
+      <div class="card-body">
+        <div class="card-num">${esc(it.cislo)}${it.investicni?' 💰':''}</div>
+        <div class="card-name">${esc(it.nazev)}</div>
+        <div class="card-row"><span>Cena</span><span class="card-cena">${fmtKc(it.cena)}</span></div>
+        <div class="card-row"><span>Hodnota</span><span class="card-cena">${fmtKc(it.hodnota)}</span></div>
+        <div class="card-row"><span>Růst</span><span class="card-growth ${gc}">${g===null?'–':fmtPct(g)}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderStats(){
+  const total = items.length;
+  const invest = items.filter(i=>i.investicni).length;
+  const cenaSum = items.reduce((s,i)=>s+(Number(i.cena)||0),0);
+  const hodnotaSum = items.reduce((s,i)=>s+(i.hodnota!==null&&i.hodnota!==undefined?Number(i.hodnota):Number(i.cena)||0),0);
+  const zisk = hodnotaSum - cenaSum;
+  const ziskPct = cenaSum>0 ? (zisk/cenaSum*100) : 0;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-invest').textContent = invest;
+  document.getElementById('stat-cena').textContent = fmtKc(cenaSum);
+  document.getElementById('stat-hodnota').textContent = fmtKc(hodnotaSum);
+  const ze = document.getElementById('stat-zisk'); ze.textContent = (zisk>=0?'+':'')+fmtKc(zisk); ze.className='stat-value '+(zisk>0?'pos':(zisk<0?'neg':''));
+  const zpe = document.getElementById('stat-zisk-pct'); zpe.textContent = fmtPct(ziskPct); zpe.className='stat-value '+(ziskPct>0?'pos':(ziskPct<0?'neg':''));
+}
+function setView(v){
+  view = v;
+  document.getElementById('viewTable').style.display = v==='table'?'block':'none';
+  document.getElementById('viewGrid').style.display = v==='grid'?'block':'none';
+  document.getElementById('btnTable').classList.toggle('active', v==='table');
+  document.getElementById('btnGrid').classList.toggle('active', v==='grid');
+}
+function esc(s){
+  if(s===null||s===undefined) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- MODAL ITEM ---------- */
+function openItemModal(idx){
+  editIdx = idx;
+  const it = idx===null ? {cislo:'',nazev:'',datum:'',od:'',poznamka:'',cena:'',investicni:false,hodnota:null,hodnotaUsd:null,hodnotaUpdated:null} : items[idx];
+  document.getElementById('itemModalTitle').textContent = idx===null ? 'Nový set' : 'Set';
+  document.getElementById('if-cislo').value = it.cislo||'';
+  document.getElementById('if-cena').value = it.cena===''||it.cena===undefined?'':it.cena;
+  document.getElementById('if-nazev').value = it.nazev||'';
+  document.getElementById('if-datum').value = it.datum||'';
+  document.getElementById('if-investicni').value = it.investicni ? 'ano' : 'ne';
+  document.getElementById('if-od').value = it.od||'';
+  document.getElementById('if-poznamka').value = it.poznamka||'';
+  updateItemPreview();
+  updateValueBox(it);
+  const del = document.getElementById('itemBtnDelete');
+  del.style.display = idx===null ? 'none' : 'inline-block';
+  applyLockToItemModal();
+  document.getElementById('itemModal').classList.add('active');
+}
+function updateValueBox(it){
+  const g = growthOf(it);
+  const gc = growthClass(g);
+  const num = document.getElementById('vb-num');
+  const sub = document.getElementById('vb-sub');
+  num.className = 'vb-num '+gc;
+  if(it.hodnota===null||it.hodnota===undefined){
+    num.textContent = '–';
+    sub.textContent = 'Aktuální hodnota nebyla ještě načtena z BrickEconomy';
+  } else {
+    num.textContent = fmtKc(it.hodnota) + (g===null?'':'  ('+fmtPct(g)+')');
+    let s = 'Naposledy aktualizováno: ' + (it.hodnotaUpdated ? new Date(it.hodnotaUpdated).toLocaleString('cs-CZ') : '–');
+    if(it.hodnotaUsd) s += ` · zdroj: $${it.hodnotaUsd.toFixed(2)}`;
+    sub.textContent = s;
+  }
+}
+function updateItemPreview(){
+  const cislo = document.getElementById('if-cislo').value.trim();
+  const nazev = document.getElementById('if-nazev').value.trim();
+  const hero = document.getElementById('itemModalHero');
+  if(cislo){
+    hero.innerHTML = `<img class="modal-hero-img" src="${IMG_SET(cislo)}" onerror="this.style.opacity=0.15">
+      <div class="modal-hero-info"><h2>${esc(nazev)||'Nový set'}</h2><div class="sub">#${esc(cislo)}</div>
+      <a class="img-link" href="${BE_URL(cislo)}" target="_blank" rel="noopener">${BE_URL(cislo)}</a></div>`;
+  } else {
+    hero.innerHTML = `<div class="modal-hero-info"><h2>Nový set</h2><div class="sub">Zadej číslo setu</div></div>`;
+  }
+}
+function closeItemModal(){
+  document.getElementById('itemModal').classList.remove('active');
+  editIdx = null;
+}
+function applyLockToItemModal(){
+  const fields = ['if-cislo','if-cena','if-nazev','if-datum','if-investicni','if-od','if-poznamka'];
+  fields.forEach(id=>document.getElementById(id).disabled = !unlocked);
+  document.getElementById('itemReadonlyNotice').style.display = unlocked ? 'none' : 'flex';
+  document.getElementById('itemBtnSave').style.display = unlocked ? 'inline-block' : 'none';
+  document.getElementById('itemBtnSave').disabled = !unlocked;
+  document.getElementById('itemBtnDelete').disabled = !unlocked;
+}
+function saveItem(){
+  const cislo = document.getElementById('if-cislo').value.trim();
+  const nazev = document.getElementById('if-nazev').value.trim();
+  if(!cislo){ alert('Zadej číslo setu.'); return; }
+  const obj = {
+    cislo, nazev,
+    cena: Number(document.getElementById('if-cena').value) || 0,
+    datum: document.getElementById('if-datum').value || '',
+    investicni: document.getElementById('if-investicni').value === 'ano',
+    od: document.getElementById('if-od').value.trim(),
+    poznamka: document.getElementById('if-poznamka').value.trim(),
+  };
+  if(editIdx===null){
+    obj.hodnota = null; obj.hodnotaUsd = null; obj.hodnotaUpdated = null;
+    items.push(obj);
+  } else {
+    const prev = items[editIdx];
+    obj.hodnota = prev.hodnota ?? null;
+    obj.hodnotaUsd = prev.hodnotaUsd ?? null;
+    obj.hodnotaUpdated = prev.hodnotaUpdated ?? null;
+    items[editIdx] = obj;
+  }
+  saveStorage(DATA_KEY, items);
+  closeItemModal();
+  filterItems();
+}
+function deleteItem(){
+  if(editIdx===null) return;
+  if(!confirm('Opravdu smazat tento set?')) return;
+  items.splice(editIdx,1);
+  saveStorage(DATA_KEY, items);
+  closeItemModal();
+  filterItems();
+}
+
+/* ---------- PIN LOCK ---------- */
+function getPin(){
+  try{ return localStorage.getItem(GH_PIN_KEY) || DEFAULT_PIN; }catch(e){ return DEFAULT_PIN; }
+}
+function updateLockUI(){
+  const btn = document.getElementById('lockBtn');
+  btn.className = 'lock-btn ' + (unlocked?'unlocked':'locked');
+  btn.textContent = unlocked ? '🔓 Odemčeno' : '🔒 Zamčeno';
+  document.getElementById('btnAdd').disabled = false;
+}
+function handleLockBtn(){
+  if(unlocked){ unlocked=false; updateLockUI(); return; }
+  requirePin(()=>{ unlocked=true; updateLockUI(); });
+}
+function requirePin(cb){
+  if(unlocked){ cb(); return; }
+  pinCallback = cb;
+  pinBuffer = '';
+  document.getElementById('pinError').textContent='';
+  renderPinDots();
+  document.getElementById('pinModal').classList.add('active');
+}
+function closePinModal(){
+  document.getElementById('pinModal').classList.remove('active');
+  pinCallback = null;
+}
+function renderPinDots(){
+  for(let i=0;i<4;i++){
+    const d = document.getElementById('pd'+i);
+    d.className = 'pin-dot' + (i<pinBuffer.length?' filled':'');
+  }
+}
+function pinKey(k){
+  if(pinBuffer.length>=4) return;
+  pinBuffer += k;
+  renderPinDots();
+  if(pinBuffer.length===4){
+    if(pinBuffer===getPin()){
+      setTimeout(()=>{
+        closePinModal();
+        unlocked = true; updateLockUI();
+        if(pinCallback) pinCallback();
+        pinCallback = null;
+      },150);
+    } else {
+      document.getElementById('pinError').textContent = 'Nesprávný PIN, zkus to znovu.';
+      for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.add('error');
+      setTimeout(()=>{ pinBuffer=''; renderPinDots(); for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.remove('error'); },500);
+    }
+  }
+}
+function pinDel(){ pinBuffer = pinBuffer.slice(0,-1); renderPinDots(); }
+
+/* Keep modal field lock state in sync whenever unlock happens via header button while modal open */
+const _origUpdateLockUI = updateLockUI;
+updateLockUI = function(){ _origUpdateLockUI(); if(document.getElementById('itemModal').classList.contains('active')) applyLockToItemModal(); };
+
+/* ---------- EXPORT ---------- */
+function exportData(){
+  const payload = JSON.stringify({version:1, exported:new Date().toISOString(), items}, null, 2);
+  const blob = new Blob([payload], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'lego_export_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- GITHUB SETTINGS / SYNC ---------- */
+function getGhSettings(){
+  try{
+    return {
+      token: localStorage.getItem(GH_TOKEN_KEY) || '',
+      owner: localStorage.getItem(GH_OWNER_KEY) || '',
+      repo:  localStorage.getItem(GH_REPO_KEY)  || '',
+    };
+  }catch(e){ return {token:'',owner:'',repo:''}; }
+}
+function openGithubSettings(){
+  const s = getGhSettings();
+  document.getElementById('gh-token').value = '';
+  document.getElementById('gh-owner').value = s.owner;
+  document.getElementById('gh-repo').value = s.repo;
+  document.getElementById('gh-pin-new').value='';
+  document.getElementById('gh-pin-confirm').value='';
+  document.getElementById('gh-status').innerHTML='';
+  document.getElementById('githubModal').classList.add('active');
+}
+function closeGithubSettings(){ document.getElementById('githubModal').classList.remove('active'); }
+function saveGithubSettings(){
+  const token = document.getElementById('gh-token').value.trim();
+  const owner = document.getElementById('gh-owner').value.trim();
+  const repo  = document.getElementById('gh-repo').value.trim();
+  const pinNew = document.getElementById('gh-pin-new').value.trim();
+  const pinConfirm = document.getElementById('gh-pin-confirm').value.trim();
+  const status = document.getElementById('gh-status');
+  if(pinNew){
+    if(!/^\d{4}$/.test(pinNew)){status.innerHTML='<span style="color:var(--red)">PIN musí být 4 cifry.</span>';return;}
+    if(pinNew!==pinConfirm){status.innerHTML='<span style="color:var(--red)">PIN se neshoduje.</span>';return;}
+    try{localStorage.setItem(GH_PIN_KEY,pinNew);}catch(e){}
+  }
+  try{
+    if(token)localStorage.setItem(GH_TOKEN_KEY,token);
+    if(owner)localStorage.setItem(GH_OWNER_KEY,owner);
+    if(repo)localStorage.setItem(GH_REPO_KEY,repo);
+  }catch(e){}
+  status.innerHTML='<span style="color:#4CAF50">✅ Nastavení uloženo!</span>';
+  setTimeout(closeGithubSettings,1200);
+}
+function showToast(msg,color){
+  const t=document.getElementById('syncToast');
+  t.textContent=msg;t.style.color=color||'var(--accent)';t.style.borderColor=color||'var(--accent)';
+  t.style.display='block';t.style.opacity='1';
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.style.display='none',300);},3000);
+}
+async function getFileSha(token,owner,repo){
+  try{
+    const res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${DATA_FILE}`,{
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(res.ok){const d=await res.json();return d.sha;}
+  }catch(e){}
+  return null;
+}
+async function githubSync(){
+  const s=getGhSettings();
+  if(!s.token||!s.owner||!s.repo){openGithubSettings();return;}
+  const btn=document.getElementById('btnSync');btn.textContent='⏳';btn.disabled=true;
+  try{
+    const payload=JSON.stringify({version:1,exported:new Date().toISOString(),items},null,2);
+    const encoded=btoa(unescape(encodeURIComponent(payload)));
+    const sha=await getFileSha(s.token,s.owner,s.repo);
+    const body={message:'Aktualizace databáze '+new Date().toISOString().slice(0,10),content:encoded};
+    if(sha)body.sha=sha;
+    const res=await fetch(`https://api.github.com/repos/${s.owner}/${s.repo}/contents/${DATA_FILE}`,{
+      method:'PUT',
+      headers:{'Authorization':'token '+s.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+      body:JSON.stringify(body)
+    });
+    if(res.ok){showToast('✅ Synchronizováno!','#4CAF50');try{localStorage.removeItem('lego_gen_last_sync');}catch(e){}}
+    else{const err=await res.json();showToast('❌ Chyba: '+(err.message||res.status),'var(--red)');}
+  }catch(e){showToast('❌ Chyba připojení','var(--red)');}
+  btn.textContent='☁️';btn.disabled=false;
+}
+async function loadFromGithub(force=false){
+  const s=getGhSettings();
+  if(!s.owner||!s.repo){
+    if(items.length===0){showToast('⚠️ Nastav GitHub v ⚙️ pro načtení dat','var(--noinvest)');}
+    return;
+  }
+  try{
+    const res=await fetch(`https://raw.githubusercontent.com/${s.owner}/${s.repo}/main/${DATA_FILE}?t=${Date.now()}`);
+    if(!res.ok){showToast('❌ Nelze načíst data z GitHubu','var(--red)');return;}
+    const payload=await res.json();
+    if(!payload.items)return;
+    const localSync=(()=>{try{return localStorage.getItem('lego_gen_last_sync')||'';}catch(e){return '';}})();
+    if(!force && payload.exported && payload.exported<=localSync && items.length>0){
+      showToast('✅ Data jsou aktuální','var(--accent2)');return;
+    }
+    items=payload.items;
+    saveStorage(DATA_KEY, items);
+    try{localStorage.setItem('lego_gen_last_sync',payload.exported);}catch(e){}
+    filterItems();
+    showToast('☁️ Data načtena z GitHubu','var(--accent2)');
+  }catch(e){showToast('❌ Chyba načítání dat','var(--red)');}
+}
+
+/* ---------- AKTUÁLNÍ HODNOTA Z BRICKECONOMY ---------- */
+async function fetchViaProxies(url){
+  for(const build of CORS_PROXIES){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), 12000);
+      const res = await fetch(build(url), {signal: ctrl.signal});
+      clearTimeout(t);
+      if(res.ok){
+        const txt = await res.text();
+        if(txt && txt.length > 500) return txt;
+      }
+    }catch(e){ /* try next proxy */ }
+  }
+  return null;
+}
+async function getUsdCzkRate(){
+  const cached = loadStorage(RATE_KEY, null);
+  const now = Date.now();
+  if(cached && cached.rate && (now - cached.ts) < 24*3600*1000) return cached.rate;
+  try{
+    const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=CZK');
+    if(res.ok){
+      const d = await res.json();
+      const rate = d.rates && d.rates.CZK;
+      if(rate){ saveStorage(RATE_KEY,{rate,ts:now}); return rate; }
+    }
+  }catch(e){}
+  return (cached && cached.rate) || 22.5; // fallback odhad
+}
+function parseCurrentValueUsd(html){
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi,' ')
+                    .replace(/<style[\s\S]*?<\/style>/gi,' ')
+                    .replace(/<[^>]+>/g,' ')
+                    .replace(/&nbsp;/g,' ')
+                    .replace(/\s+/g,' ');
+  const idx = text.indexOf('Set Pricing');
+  if(idx<0) return null;
+  const section = text.substring(idx, idx+900);
+  let m = section.match(/Market price\s*\$\s*([\d,]+\.?\d*)/i);
+  if(!m) m = section.match(/Value\s*\$\s*([\d,]+\.?\d*)/i);
+  if(!m) return null;
+  const num = parseFloat(m[1].replace(/,/g,''));
+  return isNaN(num) ? null : num;
+}
+async function fetchCurrentValue(cislo){
+  const html = await fetchViaProxies(BE_URL(cislo));
+  if(!html) throw new Error('Stránku BrickEconomy se nepodařilo načíst (proxy nedostupná).');
+  const usd = parseCurrentValueUsd(html);
+  if(usd===null) throw new Error('Hodnotu se nepodařilo v stránce najít.');
+  const rate = await getUsdCzkRate();
+  return { usd, czk: usd * rate };
+}
+async function refreshSingleValue(idx){
+  const btn = document.getElementById('rbtn-'+idx);
+  if(btn) btn.classList.add('spinning');
+  try{
+    const it = items[idx];
+    const r = await fetchCurrentValue(it.cislo);
+    it.hodnota = Math.round(r.czk);
+    it.hodnotaUsd = r.usd;
+    it.hodnotaUpdated = new Date().toISOString();
+    saveStorage(DATA_KEY, items);
+    filterItems();
+    showToast(`✅ ${it.cislo}: ${fmtKc(it.hodnota)}`,'#4CAF50');
+  }catch(e){
+    showToast('❌ '+(e.message||'Chyba načítání hodnoty'),'var(--red)');
+  }
+  if(btn) btn.classList.remove('spinning');
+}
+async function refreshItemValue(){
+  if(editIdx===null){ showToast('Nejdřív set ulož, pak lze načíst hodnotu.','var(--noinvest)'); return; }
+  const btn = document.getElementById('vb-refresh');
+  btn.disabled = true; btn.textContent = '⏳ Načítám...';
+  try{
+    const it = items[editIdx];
+    const r = await fetchCurrentValue(it.cislo);
+    it.hodnota = Math.round(r.czk);
+    it.hodnotaUsd = r.usd;
+    it.hodnotaUpdated = new Date().toISOString();
+    saveStorage(DATA_KEY, items);
+    updateValueBox(it);
+    filterItems();
+    showToast('✅ Hodnota aktualizována','#4CAF50');
+  }catch(e){
+    showToast('❌ '+(e.message||'Chyba načítání hodnoty'),'var(--red)');
+  }
+  btn.disabled = false; btn.textContent = '🔄 Aktualizovat';
+}
+async function refreshAllValues(){
+  if(items.length===0){ showToast('Databáze je prázdná.','var(--noinvest)'); return; }
+  const btn = document.getElementById('btnRefreshAll');
+  btn.disabled = true;
+  let ok=0, fail=0;
+  for(let i=0;i<items.length;i++){
+    btn.textContent = `⏳ ${i+1}/${items.length}`;
+    try{
+      const r = await fetchCurrentValue(items[i].cislo);
+      items[i].hodnota = Math.round(r.czk);
+      items[i].hodnotaUsd = r.usd;
+      items[i].hodnotaUpdated = new Date().toISOString();
+      ok++;
+    }catch(e){ fail++; }
+    saveStorage(DATA_KEY, items);
+    filterItems();
+    await new Promise(r=>setTimeout(r, 900));
+  }
+  btn.textContent = '🔄 Hodnoty';
+  btn.disabled = false;
+  document.getElementById('lastRefreshInfo').textContent = `Poslední hromadná aktualizace: ${new Date().toLocaleString('cs-CZ')} (${ok} OK, ${fail} chyb)`;
+  showToast(`✅ Hotovo: ${ok} aktualizováno, ${fail} chyb`, fail>0 ? 'var(--noinvest)' : '#4CAF50');
+}
+
+init();
+loadFromGithub();
+</script>
+</body>
+</html>
