@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported": "2026-07-20T19:27:01.101Z",
+  "exported": "2026-07-20T19:46:29.080Z",
   "items": [
     {
       "cislo": "43011",
@@ -10,9 +10,12 @@
       "investicni": true,
       "od": "Albert",
       "poznamka": "",
-      "hodnota": 651,
-      "hodnotaUsd": 28.93,
-      "hodnotaUpdated": "2026-07-20T19:08:43.248Z"
+      "hodnota": 636,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": "2026-07-20T19:44:39.236Z",
+      "hodnotaRaw": 636.37,
+      "hodnotaCurrency": "CZK",
+      "hodnotaRetail": false
     },
     {
       "cislo": "43027",
@@ -22,9 +25,12 @@
       "investicni": true,
       "od": "Albert",
       "poznamka": "",
-      "hodnota": null,
+      "hodnota": 646,
       "hodnotaUsd": null,
-      "hodnotaUpdated": null
+      "hodnotaUpdated": "2026-07-20T19:44:11.208Z",
+      "hodnotaRaw": 645.57,
+      "hodnotaCurrency": "CZK",
+      "hodnotaRetail": false
     },
     {
       "cislo": "43019",
@@ -34,9 +40,12 @@
       "investicni": true,
       "od": "megaknihy.cz",
       "poznamka": "",
-      "hodnota": null,
+      "hodnota": 3069,
       "hodnotaUsd": null,
-      "hodnotaUpdated": null
+      "hodnotaUpdated": "2026-07-20T19:46:19.095Z",
+      "hodnotaRaw": 3068.54,
+      "hodnotaCurrency": "CZK",
+      "hodnotaRetail": false
     },
     {
       "cislo": "43013",
@@ -46,9 +55,12 @@
       "investicni": true,
       "od": "allegro.cz",
       "poznamka": "",
-      "hodnota": null,
+      "hodnota": 729,
       "hodnotaUsd": null,
-      "hodnotaUpdated": null
+      "hodnotaUpdated": "2026-07-20T19:45:48.355Z",
+      "hodnotaRaw": 729,
+      "hodnotaCurrency": "CZK",
+      "hodnotaRetail": true
     },
     {
       "cislo": "43012",
@@ -58,9 +70,12 @@
       "investicni": true,
       "od": "allegro.cz",
       "poznamka": "",
-      "hodnota": null,
+      "hodnota": 729,
       "hodnotaUsd": null,
-      "hodnotaUpdated": null
+      "hodnotaUpdated": "2026-07-20T19:45:08.265Z",
+      "hodnotaRaw": 729,
+      "hodnotaCurrency": "CZK",
+      "hodnotaRetail": true
     }
   ]
 }
