@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported": "2026-07-20T19:46:29.080Z",
+  "exported": "2026-07-20T19:47:40.400Z",
   "items": [
     {
       "cislo": "43011",
@@ -10,12 +10,9 @@
       "investicni": true,
       "od": "Albert",
       "poznamka": "",
-      "hodnota": 636,
-      "hodnotaUsd": null,
-      "hodnotaUpdated": "2026-07-20T19:44:39.236Z",
-      "hodnotaRaw": 636.37,
-      "hodnotaCurrency": "CZK",
-      "hodnotaRetail": false
+      "hodnota": 651,
+      "hodnotaUsd": 28.93,
+      "hodnotaUpdated": "2026-07-20T19:08:43.248Z"
     },
     {
       "cislo": "43027",
@@ -27,7 +24,7 @@
       "poznamka": "",
       "hodnota": 646,
       "hodnotaUsd": null,
-      "hodnotaUpdated": "2026-07-20T19:44:11.208Z",
+      "hodnotaUpdated": "2026-07-20T19:47:17.655Z",
       "hodnotaRaw": 645.57,
       "hodnotaCurrency": "CZK",
       "hodnotaRetail": false
@@ -42,7 +39,7 @@
       "poznamka": "",
       "hodnota": 3069,
       "hodnotaUsd": null,
-      "hodnotaUpdated": "2026-07-20T19:46:19.095Z",
+      "hodnotaUpdated": "2026-07-20T19:47:32.081Z",
       "hodnotaRaw": 3068.54,
       "hodnotaCurrency": "CZK",
       "hodnotaRetail": false
@@ -57,7 +54,7 @@
       "poznamka": "",
       "hodnota": 729,
       "hodnotaUsd": null,
-      "hodnotaUpdated": "2026-07-20T19:45:48.355Z",
+      "hodnotaUpdated": "2026-07-20T19:47:31.366Z",
       "hodnotaRaw": 729,
       "hodnotaCurrency": "CZK",
       "hodnotaRetail": true
@@ -72,7 +69,7 @@
       "poznamka": "",
       "hodnota": 729,
       "hodnotaUsd": null,
-      "hodnotaUpdated": "2026-07-20T19:45:08.265Z",
+      "hodnotaUpdated": "2026-07-20T19:47:30.345Z",
       "hodnotaRaw": 729,
       "hodnotaCurrency": "CZK",
       "hodnotaRetail": true
