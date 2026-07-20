@@ -484,7 +484,7 @@ function renderTable(){
       <td class="td-poznamka" title="${esc(it.poznamka)}">${esc(it.poznamka)}</td>
       <td class="td-cena">${fmtKc(it.cena)}</td>
       <td>${it.investicni?'<span class="badge badge-invest">💰 Ano</span>':'<span class="badge badge-noinvest">Ne</span>'}</td>
-      <td class="td-hodnota">${fmtKc(it.hodnota)}${it.hodnotaUpdated?`<span class="updated">${fmtDate(it.hodnotaUpdated.slice(0,10))}</span>`:''}</td>
+      <td class="td-hodnota">${fmtKc(it.hodnota)}${it.hodnotaRetail?' <span title="Zatím jen maloobchodní cena, set nemá sekundární trh" style="color:var(--text-dim);font-size:9px;">MOC</span>':''}${it.hodnotaUpdated?`<span class="updated">${fmtDate(it.hodnotaUpdated.slice(0,10))}</span>`:''}</td>
       <td class="td-growth ${gc}">${g===null?'–':fmtPct(g)}</td>
       <td class="td-refresh"><button class="refresh-btn" id="rbtn-${idx}" onclick="event.stopPropagation();refreshSingleValue(${idx})" title="Aktualizovat hodnotu">🔄</button></td>
     </tr>`;
@@ -567,9 +567,13 @@ function updateValueBox(it){
     num.textContent = '–';
     sub.textContent = 'Aktuální hodnota nebyla ještě načtena z BrickEconomy';
   } else {
-    num.textContent = fmtKc(it.hodnota) + (g===null?'':'  ('+fmtPct(g)+')');
+    num.textContent = fmtKc(it.hodnota) + (g===null?'':'  ('+fmtPct(g)+')') + (it.hodnotaRetail?' · MOC':'');
     let s = 'Naposledy aktualizováno: ' + (it.hodnotaUpdated ? new Date(it.hodnotaUpdated).toLocaleString('cs-CZ') : '–');
-    if(it.hodnotaUsd) s += ` · zdroj: $${it.hodnotaUsd.toFixed(2)}`;
+    if(it.hodnotaRaw!==undefined && it.hodnotaRaw!==null && it.hodnotaCurrency && it.hodnotaCurrency!=='CZK'){
+      const symMap={USD:'$',EUR:'€',GBP:'£'};
+      s += ` · zdroj: ${symMap[it.hodnotaCurrency]||''}${it.hodnotaRaw.toFixed(2)}`;
+    }
+    if(it.hodnotaRetail) s += ' · set je zatím jen v maloobchodě, hodnota = aktuální retail cena';
     sub.textContent = s;
   }
 }
@@ -829,28 +833,82 @@ async function getUsdCzkRate(){
   }catch(e){}
   return (cached && cached.rate) || 22.5; // fallback odhad
 }
-function parseCurrentValueUsd(html){
-  const text = html.replace(/<script[\s\S]*?<\/script>/gi,' ')
-                    .replace(/<style[\s\S]*?<\/style>/gi,' ')
-                    .replace(/<[^>]+>/g,' ')
-                    .replace(/&nbsp;/g,' ')
-                    .replace(/\s+/g,' ');
+function parsePriceToken(str){
+  let s = str.trim().replace(/\s+/g,'');
+  const lastComma = s.lastIndexOf(',');
+  const lastDot = s.lastIndexOf('.');
+  if(lastComma>-1 && lastDot>-1){
+    if(lastComma>lastDot){ s = s.replace(/\./g,'').replace(',', '.'); }
+    else { s = s.replace(/,/g,''); }
+  } else if(lastComma>-1){
+    const decimals = s.length - lastComma - 1;
+    if(decimals===2){ s = s.replace(',', '.'); } else { s = s.replace(/,/g,''); }
+  } else if(lastDot>-1){
+    const decimals = s.length - lastDot - 1;
+    if(decimals!==2){ s = s.replace(/\./g,''); }
+  }
+  const num = parseFloat(s);
+  return isNaN(num) ? null : num;
+}
+function currencyCodeOf(sym){
+  sym = (sym||'').trim();
+  if(sym==='Kč') return 'CZK';
+  if(sym==='€') return 'EUR';
+  if(sym==='£') return 'GBP';
+  return 'USD';
+}
+function htmlToText(html){
+  return html.replace(/<script[\s\S]*?<\/script>/gi,' ')
+             .replace(/<style[\s\S]*?<\/style>/gi,' ')
+             .replace(/<[^>]+>/g,' ')
+             .replace(/&nbsp;/g,' ')
+             .replace(/\s+/g,' ');
+}
+function parseCurrentValue(html){
+  const text = htmlToText(html);
   const idx = text.indexOf('Set Pricing');
   if(idx<0) return null;
-  const section = text.substring(idx, idx+900);
-  let m = section.match(/Market price\s*\$\s*([\d,]+\.?\d*)/i);
-  if(!m) m = section.match(/Value\s*\$\s*([\d,]+\.?\d*)/i);
-  if(!m) return null;
-  const num = parseFloat(m[1].replace(/,/g,''));
-  return isNaN(num) ? null : num;
+  const section = text.substring(idx, idx+700);
+  const tryLabel = (label)=>{
+    const re = new RegExp(label+'\\s*([€$£]?)\\s*([\\d][\\d\\s.,]*\\d|\\d)\\s*(Kč|€|\\$|£)?','i');
+    const m = section.match(re);
+    if(!m) return null;
+    const num = parsePriceToken(m[2]);
+    if(num===null) return null;
+    return { value:num, currency: currencyCodeOf(m[3]||m[1]) };
+  };
+  let r = tryLabel('Market price');
+  if(!r) r = tryLabel('Value');
+  if(r) return { ...r, retail:false };
+  r = tryLabel('Retail price');
+  if(r) return { ...r, retail:true };
+  return null;
+}
+async function getRate(currency){
+  if(currency==='CZK') return 1;
+  const key = RATE_KEY+'_'+currency;
+  const cached = loadStorage(key, null);
+  const now = Date.now();
+  if(cached && cached.rate && (now - cached.ts) < 24*3600*1000) return cached.rate;
+  try{
+    const res = await fetch(`https://api.frankfurter.app/latest?from=${currency}&to=CZK`);
+    if(res.ok){
+      const d = await res.json();
+      const rate = d.rates && d.rates.CZK;
+      if(rate){ saveStorage(key,{rate,ts:now}); return rate; }
+    }
+  }catch(e){}
+  const fallback = {USD:22.5, EUR:25.0, GBP:29.0}[currency] || 22.5;
+  return (cached && cached.rate) || fallback;
 }
 async function fetchCurrentValue(cislo){
   const html = await fetchViaProxies(BE_URL(cislo));
   if(!html) throw new Error('Stránku BrickEconomy se nepodařilo načíst (proxy nedostupná).');
-  const usd = parseCurrentValueUsd(html);
-  if(usd===null) throw new Error('Hodnotu se nepodařilo v stránce najít.');
-  const rate = await getUsdCzkRate();
-  return { usd, czk: usd * rate };
+  const parsed = parseCurrentValue(html);
+  if(!parsed) throw new Error('Hodnotu se nepodařilo v stránce najít.');
+  const rate = await getRate(parsed.currency);
+  const czk = parsed.value * rate;
+  return { usd: parsed.currency==='USD'?parsed.value:null, raw: parsed.value, currency: parsed.currency, czk, retail: parsed.retail };
 }
 async function refreshSingleValue(idx){
   const btn = document.getElementById('rbtn-'+idx);
@@ -860,10 +918,11 @@ async function refreshSingleValue(idx){
     const r = await fetchCurrentValue(it.cislo);
     it.hodnota = Math.round(r.czk);
     it.hodnotaUsd = r.usd;
+    it.hodnotaRaw = r.raw; it.hodnotaCurrency = r.currency; it.hodnotaRetail = r.retail;
     it.hodnotaUpdated = new Date().toISOString();
     saveStorage(DATA_KEY, items);
     filterItems();
-    showToast(`✅ ${it.cislo}: ${fmtKc(it.hodnota)}`,'#4CAF50');
+    showToast(`✅ ${it.cislo}: ${fmtKc(it.hodnota)}${r.retail?' (MOC)':''}`,'#4CAF50');
   }catch(e){
     showToast('❌ '+(e.message||'Chyba načítání hodnoty'),'var(--red)');
   }
@@ -878,11 +937,12 @@ async function refreshItemValue(){
     const r = await fetchCurrentValue(it.cislo);
     it.hodnota = Math.round(r.czk);
     it.hodnotaUsd = r.usd;
+    it.hodnotaRaw = r.raw; it.hodnotaCurrency = r.currency; it.hodnotaRetail = r.retail;
     it.hodnotaUpdated = new Date().toISOString();
     saveStorage(DATA_KEY, items);
     updateValueBox(it);
     filterItems();
-    showToast('✅ Hodnota aktualizována','#4CAF50');
+    showToast('✅ Hodnota aktualizována'+(r.retail?' (dle maloobchodní ceny)':''),'#4CAF50');
   }catch(e){
     showToast('❌ '+(e.message||'Chyba načítání hodnoty'),'var(--red)');
   }
@@ -899,6 +959,7 @@ async function refreshAllValues(){
       const r = await fetchCurrentValue(items[i].cislo);
       items[i].hodnota = Math.round(r.czk);
       items[i].hodnotaUsd = r.usd;
+      items[i].hodnotaRaw = r.raw; items[i].hodnotaCurrency = r.currency; items[i].hodnotaRetail = r.retail;
       items[i].hodnotaUpdated = new Date().toISOString();
       ok++;
     }catch(e){ fail++; }
