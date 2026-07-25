@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported": "2026-07-20T19:47:40.400Z",
+  "exported": "2026-07-25T10:45:14.104Z",
   "items": [
     {
       "cislo": "43011",
@@ -73,6 +73,54 @@
       "hodnotaRaw": 729,
       "hodnotaCurrency": "CZK",
       "hodnotaRetail": true
+    },
+    {
+      "cislo": "77256",
+      "nazev": "Time Machine from Back to the Future",
+      "cena": 0,
+      "datum": "2026-01-23",
+      "investicni": false,
+      "od": "od Lukáše a Kačky",
+      "poznamka": "dárek narozeniny",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "10342",
+      "nazev": "Pretty Pink Flower Bouquet",
+      "cena": 0,
+      "datum": "2026-02-14",
+      "investicni": false,
+      "od": "",
+      "poznamka": "dárek pro Vlaďku",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "11502",
+      "nazev": "Sunflower Bouquet",
+      "cena": 0,
+      "datum": "2026-05-23",
+      "investicni": false,
+      "od": "",
+      "poznamka": "dárek pro Vlaďku",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "11501",
+      "nazev": "Tulip Bouquet",
+      "cena": 1099,
+      "datum": "2026-07-20",
+      "investicni": false,
+      "od": "Tesco",
+      "poznamka": "dárek pro Vlaďku",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
     }
   ]
 }
