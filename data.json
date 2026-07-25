@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported": "2026-07-25T10:59:24.745Z",
+  "exported": "2026-07-25T11:59:34.314Z",
   "items": [
     {
       "cislo": "43011",
@@ -153,6 +153,30 @@
       "datum": "2025-12-19",
       "investicni": false,
       "od": "Heřmanová Šárka",
+      "poznamka": "",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "71050",
+      "nazev": "Minifigure, Spider-Man Across the Spider-Verse (Complete Series of 12 Complete Minifigure Sets)",
+      "cena": 816,
+      "datum": "2025-08-27",
+      "investicni": false,
+      "od": "Heřmanová Šárka",
+      "poznamka": "",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "71048",
+      "nazev": "Minifigure, Series 27 (Complete Series of 12 Complete Minifigure Sets)",
+      "cena": 1200,
+      "datum": "2025-08-31",
+      "investicni": false,
+      "od": "postupně dokoupeno v různých obchodech",
       "poznamka": "",
       "hodnota": null,
       "hodnotaUsd": null,
