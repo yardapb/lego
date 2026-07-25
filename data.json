@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported": "2026-07-25T10:45:14.104Z",
+  "exported": "2026-07-25T10:59:24.745Z",
   "items": [
     {
       "cislo": "43011",
@@ -118,6 +118,42 @@
       "investicni": false,
       "od": "Tesco",
       "poznamka": "dárek pro Vlaďku",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "71030",
+      "nazev": "Minifigure, Looney Tunes (Complete Series of 12 Complete Minifigure Sets)",
+      "cena": 2200,
+      "datum": "2026-05-13",
+      "investicni": false,
+      "od": "",
+      "poznamka": "Vlaďka",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "71052",
+      "nazev": "Minifigure, Series 29 (Complete Series of 12 Complete Minifigure Sets)",
+      "cena": 929,
+      "datum": "2026-04-24",
+      "investicni": false,
+      "od": "Heřmanová Šárka",
+      "poznamka": "",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "71051",
+      "nazev": "Minifigure, Series 28 (Complete Series of 12 Complete Minifigure Sets)",
+      "cena": 968,
+      "datum": "2025-12-19",
+      "investicni": false,
+      "od": "Heřmanová Šárka",
+      "poznamka": "",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
