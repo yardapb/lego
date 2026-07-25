@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported": "2026-07-25T12:32:28.787Z",
+  "exported": "2026-07-25T12:56:49.927Z",
   "items": [
     {
       "cislo": "43011",
@@ -189,7 +189,7 @@
       "datum": "1984-12-24",
       "investicni": false,
       "od": "tuzex",
-      "poznamka": "datum pořízení je přibližný",
+      "poznamka": "datum pořízení je pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
@@ -213,7 +213,7 @@
       "datum": "1985-12-24",
       "investicni": false,
       "od": "tuzex",
-      "poznamka": "datum nákupu pouze orientační",
+      "poznamka": "datum pořízení je pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
@@ -225,7 +225,7 @@
       "datum": "1984-12-24",
       "investicni": false,
       "od": "tuzex",
-      "poznamka": "datum pořízení je přibližný",
+      "poznamka": "datum pořízení je pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
@@ -237,7 +237,7 @@
       "datum": "1983-12-24",
       "investicni": false,
       "od": "tuzex",
-      "poznamka": "datum pořízení je přibližný",
+      "poznamka": "datum pořízení je pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
@@ -261,7 +261,7 @@
       "datum": "1985-12-24",
       "investicni": false,
       "od": "tuzex",
-      "poznamka": "datum pořízení je orientační",
+      "poznamka": "datum pořízení je pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
@@ -273,7 +273,7 @@
       "datum": "1984-12-24",
       "investicni": false,
       "od": "tuzex",
-      "poznamka": "datum pořízení je orientační",
+      "poznamka": "datum pořízení je pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
@@ -285,7 +285,115 @@
       "datum": "1986-12-24",
       "investicni": false,
       "od": "tuzex",
-      "poznamka": "datum pořízení je orientační",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6826",
+      "nazev": "Crater Crawler",
+      "cena": 60,
+      "datum": "1986-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6805",
+      "nazev": "Astro Dasher",
+      "cena": 38,
+      "datum": "1986-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6890",
+      "nazev": "Cosmic Cruiser",
+      "cena": 250,
+      "datum": "1984-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6847",
+      "nazev": "Space Dozer",
+      "cena": 60,
+      "datum": "1986-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6882",
+      "nazev": "Walking Astro Grappler",
+      "cena": 200,
+      "datum": "1986-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6480",
+      "nazev": "Hook and Ladder Truck",
+      "cena": 280,
+      "datum": "1986-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6927",
+      "nazev": "All Terrain Vehicle",
+      "cena": 350,
+      "datum": "1984-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6929",
+      "nazev": "Starfleet Voyager",
+      "cena": 330,
+      "datum": "1984-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "8020",
+      "nazev": "Building Set",
+      "cena": 140,
+      "datum": "1986-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
