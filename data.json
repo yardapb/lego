@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported": "2026-07-25T11:59:34.314Z",
+  "exported": "2026-07-25T12:18:30.139Z",
   "items": [
     {
       "cislo": "43011",
@@ -178,6 +178,42 @@
       "investicni": false,
       "od": "postupně dokoupeno v různých obchodech",
       "poznamka": "",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6980",
+      "nazev": "Galaxy Commander",
+      "cena": 900,
+      "datum": "1984-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum pořízení je přibližný",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6950",
+      "nazev": "Mobile Rocket Transport",
+      "cena": 500,
+      "datum": "1984-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum nákupu je pouze orientační",
+      "hodnota": null,
+      "hodnotaUsd": null,
+      "hodnotaUpdated": null
+    },
+    {
+      "cislo": "6871",
+      "nazev": "Star Patrol Launcher",
+      "cena": 150,
+      "datum": "1985-12-24",
+      "investicni": false,
+      "od": "tuzex",
+      "poznamka": "datum nákupu pouze orientační",
       "hodnota": null,
       "hodnotaUsd": null,
       "hodnotaUpdated": null
